@@ -1,0 +1,46 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+  	{bootstrap}
+  </style>
+
+  <!-- d3 v4 -->
+  <script>
+    {d3}
+  </script>
+
+  <!-- queue.js -->
+  <script>
+    {queue}
+  </script>
+
+  <title>ivr: interactive visualizations in R</title>
+</head>
+
+
+<div class="container">
+  <div style="height:50px"></div>
+  <div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+      <h2>ivr: uhist</h2>
+      <p>Change the variable selections by moving the mouse over the gray bar below each graph.</p>
+      <div id="viz"></div>
+      <div id="footer" style="font-size:14px">
+      	<p>This visualization was built using d3 and the R packages htmltools, jsonlite, and glue.<br>
+      	CSS is taken from bootstrap.</p>
+  	  </div>
+    </div>
+  </div>
+</div>
+
+<!-- javascript for the uhist function -->
+<script>
+  {uhist}
+</script>
+
+</html>
