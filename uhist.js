@@ -337,7 +337,7 @@ function explore(data) {
 } // end of explore
 
 myData = ```jsonData''';
-explore(myData[0]);
+explore(myData);
 
 
 

@@ -32,22 +32,8 @@ uhist <- function(X, view=TRUE, save=FALSE, file=NULL) {
 		}
 	}
 
-	# create a dataframe of summary statistics
-	summary.df <- data.frame(
-		sapply(1:ncol(df), function(j) min(df[,j])),
-		sapply(1:ncol(df), function(j) quantile(df[,j], 0.25)),
-		sapply(1:ncol(df), function(j) median(df[,j])),
-		sapply(1:ncol(df), function(j) quantile(df[,j], 0.75)),
-		sapply(1:ncol(df), function(j) max(df[,j])),
-		sapply(1:ncol(df), function(j) mean(df[,j])),
-		sapply(1:ncol(df), function(j) var(df[,j])),
-		sapply(1:ncol(df), function(j) sum(is.na(df[,j])))
-	)
-	colnames(summary.df) <- c('min', '1st quartile', 'median', '3rd quartile', 'max',
-		'mean', 'variance', '# NA')
-
     # convert the data to JSON format
-	jsonData <- toJSON(list(df, summary.df))
+	jsonData <- toJSON(df)
 
 	# glue the JSON data into the uhist html
 	html <- HTML(glue(uhist.html, .open="```", .close="'''"))
