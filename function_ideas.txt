@@ -1,0 +1,42 @@
+*** ideas for visualizations to include ***
+
+uhist (univariate histograms): 
+ - accept a single vector or a matrix or dataframe
+ - allow the user to interactively change # of bins
+ - display summary statistics?
+ - mouseover: ??
+ - bonus: filter on another variable
+
+mplot (multivariate plot):
+ - single, large, bivariate scatterplot
+ - slider for selecting:
+ 	- x variable
+ 	- y variable
+ 	- bubble size (scale) variable
+ 	- color variable
+ - mouseover: observation number/row name? could potentially have a slider for this as well
+
+iview (interactive table view):
+ - open the data in a table. easy to scroll both vertically and horizontally.
+ - sort on variables
+ - filter
+
+gplot (graphical network plot): 
+ - color by covariates
+ - size by covariates
+ - mouseover: give name or covariates
+
+lmplot:
+ - interactive version of plot(lm())?
+ - ??
+
+splot (sensitivity analysis):
+??
+
+pcplot (principal components analysis):
+??
+
+caplot (correspondence analysis):
+??
+
+or other Gifi methods?

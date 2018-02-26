@@ -273,56 +273,8 @@ function explore(data) {
 	// get a list of the variable names
 	var varNames = Object.keys(data[0]);
 
-	// convert all factor variables to numeric
-	// if a column contains no numbers, find all unique values (other than "NA", "", or ".") and assign a number
 	var n = data.length;
 	var p = varNames.length;
-	var factorVars = [];
-	// loop over each column
-	for (j=0; j<p; j++) {
-		// classify each observation in the column as missing, non-numeric, or numeric
-		var nMissing = 0;
-		var nNaN = 0;
-		var nNumeric = 0;
-		var varClass = data.map(function(d) {
-			var out;
-			var valueTmp = d[varNames[j]];
-			if (valueTmp=="" | valueTmp=="." | valueTmp=="NA" | valueTmp=="NaN") {
-				out = "missing";
-				nMissing++;
-			} else if (isNaN(valueTmp)) {
-				out = "non-numeric";
-				nNaN++;
-			} else {
-				out = "numeric";
-				nNumeric++;
-			}
-			return(out);
-		});
-		// if nNaN/n > 0.5, classify as a factor variable. assign a number to each unique value
-		if (nNaN/n > 0.5) {
-			factorVars.push(varNames[j]);
-			// create an array for the jth variable
-			var tmpVar = data.map(function(d) {return(d[varNames[j]]);});
-			// find the unique values
-			var unique = tmpVar.filter(function(item, i, ar){ return ar.indexOf(item) === i; }).sort();
-			// assign each value of the variable to its index in the unique set of items
-			var numVar = tmpVar.map(function(d) {return(unique.indexOf(d));})
-			// recode the variable
-			for (i=0; i<n; i++){
-				data[i][varNames[j]] = numVar[i];
-			}
-		}
-
-	}
-
-	// display a message if any variables were identified as categorical
-	if (factorVars.length > 0 & factorVars.length < 4) {
-		categoricalWarning.text('The following variables have been identified as factor variables: ' + factorVars);	
-	} else if (factorVars.length > 3) {
-		categoricalWarning.text('Warning: ' + factorVars.length + ' columns were identified as categorical variables.');
-	}
-	
 
 	// remove all rows with missing values
 	var missingRows = [];
@@ -385,7 +337,7 @@ function explore(data) {
 } // end of explore
 
 myData = ```jsonData''';
-explore(myData);
+explore(myData[0]);
 
 
 
