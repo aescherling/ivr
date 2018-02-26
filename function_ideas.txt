@@ -4,6 +4,7 @@ uhist (univariate histograms):
  - accept a single vector or a matrix or dataframe
  - allow the user to interactively change # of bins
  - display summary statistics?
+ - display # of missing values?
  - mouseover: ??
  - bonus: filter on another variable
 

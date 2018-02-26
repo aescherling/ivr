@@ -19,7 +19,7 @@ var missingnessWarning = svg.append('text').attr('y', 50);
 // create a histogram group
 var histogram = svg.append('g')
 	.attr('id','histogram')
-	.attr('transform','translate(200,100)');
+	.attr('transform','translate(200,50)');
 
 // histogram dimensions
 var histHeight = 300;

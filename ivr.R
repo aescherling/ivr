@@ -5,10 +5,6 @@
 # uhist (univariate histogram)
 # mplot (multivariate scatterplot)
 
-# required packages
-require(htmltools)
-require(jsonlite)
-require(glue)
 
 # directory containing the ivr files
 setwd('~/github/ivr')
@@ -18,6 +14,12 @@ load("ivr.RData")
 
 # uhist function (univariate histograms)
 uhist <- function(X, view=TRUE, save=FALSE, file=NULL) {
+
+	# required packages
+	require(htmltools)
+	require(jsonlite)
+	require(glue)
+
 	# convert the input to a data frame, in case it isn't already
 	df <- data.frame(X)
 
@@ -70,8 +72,11 @@ uhist <- function(X, view=TRUE, save=FALSE, file=NULL) {
 
 
 # mplot function (multivariate plots)
-mplot <- function(X) {
-	jsonData <- toJSON(X)
-	html <- HTML(glue(mplot.html, .open="```", .close="'''"))
-	print(html, browse=TRUE)
-}
+# mplot <- function(X) {
+# 	jsonData <- toJSON(X)
+# 	html <- HTML(glue(mplot.html, .open="```", .close="'''"))
+# 	print(html, browse=TRUE)
+# }
+
+# save to ivr.RData
+save(uhist, uhist.html, file='ivr.RData')
