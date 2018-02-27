@@ -12,9 +12,8 @@ var svg = d3.select('#viz').append('svg')
 	.attr('height', '550px')
 	.attr('width', '700px');
 
-// add text elements for warnings about the data load
-var categoricalWarning = svg.append('text').attr('y', 25);
-var missingnessWarning = svg.append('text').attr('y', 50);
+// add text element for warnings about missing data
+var missingnessWarning = svg.append('text').attr('y', 30);
 
 // create a histogram group
 var histogram = svg.append('g')
@@ -94,6 +93,10 @@ function updateHist(x, bins, dur) {
       .attr('height', function (d,i) {return histHeight - histScaleY(counts[i])})
       .attr('y', function (d,i) {return histScaleY(counts[i])});
 
+    // display missing data warning
+    // var nMissing = data[1]
+    // missingnessWarning.
+
 } // end of updateHist()
 
 
@@ -151,6 +154,9 @@ function makeVariableSelector(id, data, variables, transform) {
 		var i = Math.min(Math.round(x.invert(d3.mouse(this)[0])), variables.length-1);
 		dot.attr('cx', x(i)).attr('cy', y(i));
 		histLabel.text(variables[i]);
+
+		// number of missing observations for the chosen variable
+		var nMissing = d3.sum(myData.map(function(d) {return d[i]==undefined}))
 	
 		// update the histogram to view the selected variable
 		currentVar = data.map(function(d) {return +d[variables[i]]});
@@ -270,45 +276,14 @@ function makeBinSelector(id, transform) {
 // function to plot the data
 function explore(data) {
 
-	// get a list of the variable names
-	var varNames = Object.keys(data[0]);
-
-	var n = data.length;
-	var p = varNames.length;
-
-	// remove all rows with missing values
-	var missingRows = [];
-	for (i=0; i<n; i++) {
-		for (j=0; j<p; j++) {
-			var valueTmp = data[i][varNames[j]];
-			if (valueTmp==="" | valueTmp=="." | valueTmp=="NA" | valueTmp=="NaN") {
-				missingRows.push(i+1);
-			}
-		}
-	}
-	var uniqueRows = missingRows.filter(function(item, i, ar){ return ar.indexOf(item) === i; }).sort();
-	var newData = [];
-	for (i=0; i<n; i++) {
-		if (uniqueRows.indexOf(i+1)===-1) {
-			newData.push(data[i]);
-		}
-	}
-	data = newData;
-
-	// display a message if any rows were removed
-	if (missingRows.length > 0 & missingRows.length < 4) {
-		missingnessWarning.text('The following observations have been removed due to missing data: ' + missingRows);
-	} else if (missingRows.length > 3) {
-		missingnessWarning.text('Warning: ' + missingRows.length + ' observations were removed due to missing data.');
-	}
-	
-
+	// get a list of the variable names, from the missing data count
+	var varNames = Object.keys(data[1][0]);
 
 	// remove all histogram bars
 	d3.select('#histogram').selectAll('.bar').remove();
 
     // create a toolbar for switching the histogram variable
-    var selector1 = makeVariableSelector('selector1', data, varNames, 'translate(207,450)');
+    var selector1 = makeVariableSelector('selector1', data[0], varNames, 'translate(207,450)');
 
     // create a toolbar for changing number of bins
     var selector2 = makeBinSelector('selector2', 'translate(207,490)');
@@ -330,7 +305,7 @@ function explore(data) {
 	// default to selecting the first column of the csv for the histogram
 	// later the user will be able to try all the different variables
 	histLabel.text(varNames[0]);
-	currentVar = data.map(function(d) {return +d[varNames[0]]});
+	currentVar = data[0].map(function(d) {return +d[varNames[0]]});
 	updateHist(currentVar, currentBins, 100);
 	
 

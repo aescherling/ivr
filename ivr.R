@@ -34,8 +34,11 @@ uhist <- function(X, view=TRUE, save=FALSE, file=NULL) {
 		}
 	}
 
+	# calculate the number of missing values per variable
+	nMissing <- data.frame(t(apply(df, 2, function(j) {sum(is.na(j))})))
+
     # convert the data to JSON format
-	jsonData <- toJSON(df)
+	jsonData <- toJSON(list(df, nMissing))
 
 	# glue the JSON data into the uhist html
 	html <- HTML(glue(uhist.html, .open="```", .close="'''"))
