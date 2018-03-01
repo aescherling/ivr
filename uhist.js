@@ -159,9 +159,9 @@ function makeVariableSelector(id, data, variables, transform) {
 		var nMissing = data[1][0][variables[i]];
 		
 		if (nMissing > 1) {
-			missingnessWarning.text('Warning: ' + variables[i] + ' has ' + nMissing + ' missing values.');
+			missingnessWarning.text('Warning: ' + variables[i] + ' has ' + nMissing + ' missing values. The ' + (data[0].length - nMissing) + ' remaining observations are plotted below.' );
 		} else if (nMissing==1) {
-			missingnessWarning.text('Warning: ' + variables[i] + ' has 1 missing value.');
+			missingnessWarning.text('Warning: ' + variables[i] + ' has 1 missing value. The ' + (data[0].length - 1) + ' remaining observations are plotted below.' );
 		} else {
 			missingnessWarning.text('');
 		}
@@ -315,9 +315,9 @@ function explore(data) {
     // display # of missing values
 	var nMissing = data[1][0][varNames[0]];	
 	if (nMissing > 1) {
-		missingnessWarning.text('Warning: ' + varNames[0] + ' has ' + nMissing + ' missing values.');
+		missingnessWarning.text('Warning: ' + varNames[0] + ' has ' + nMissing + ' missing values. The ' + (data[0].length - nMissing) + ' remaining observations are plotted below.' );
 	} else if (nMissing==1) {
-		missingnessWarning.text('Warning: ' + varNames[0] + ' has 1 missing value.');
+		missingnessWarning.text('Warning: ' + varNames[0] + ' has 1 missing value. The ' + (data[0].length - 1) + ' remaining observations are plotted below.' );
 	} else {
 		missingnessWarning.text('');
 	}

@@ -23,6 +23,12 @@ uhist <- function(X, view=TRUE, save=FALSE, file=NULL) {
 	# convert the input to a data frame, in case it isn't already
 	df <- data.frame(X)
 
+	# if only a single variable was passed, keep the variable name
+	if (dim(df)[2]==1) {
+		colnames(df) <- deparse(substitute(X))
+	}
+
+
 	# convert any character vectors to factors & represent factors as numeric
 	for (j in 1:ncol(df)) {
 		if (class(df[,j])=="character") {
@@ -36,6 +42,11 @@ uhist <- function(X, view=TRUE, save=FALSE, file=NULL) {
 
 	# calculate the number of missing values per variable
 	nMissing <- data.frame(t(apply(df, 2, function(j) {sum(is.na(j))})))
+
+	# again, if only a single variable was passed, keep the variable name
+	if (dim(df)[2]==1) {
+		names(nMissing) <- deparse(substitute(X))
+	}
 
     # convert the data to JSON format
 	jsonData <- toJSON(list(df, nMissing))
