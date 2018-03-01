@@ -13,7 +13,7 @@ var svg = d3.select('#viz').append('svg')
 	.attr('width', '700px');
 
 // add text element for warnings about missing data
-var missingnessWarning = svg.append('text').attr('y', 30);
+var missingnessWarning = svg.append('text').attr('y', 15).attr('fill','red');
 
 // create a histogram group
 var histogram = svg.append('g')
@@ -93,10 +93,6 @@ function updateHist(x, bins, dur) {
       .attr('height', function (d,i) {return histHeight - histScaleY(counts[i])})
       .attr('y', function (d,i) {return histScaleY(counts[i])});
 
-    // display missing data warning
-    // var nMissing = data[1]
-    // missingnessWarning.
-
 } // end of updateHist()
 
 
@@ -154,13 +150,21 @@ function makeVariableSelector(id, data, variables, transform) {
 		var i = Math.min(Math.round(x.invert(d3.mouse(this)[0])), variables.length-1);
 		dot.attr('cx', x(i)).attr('cy', y(i));
 		histLabel.text(variables[i]);
-
-		// number of missing observations for the chosen variable
-		var nMissing = d3.sum(myData.map(function(d) {return d[i]==undefined}))
 	
 		// update the histogram to view the selected variable
-		currentVar = data.map(function(d) {return +d[variables[i]]});
+		currentVar = data[0].map(function(d) {return +d[variables[i]]});
 		updateHist(currentVar, currentBins, 100);
+
+		// number of missing observations for the chosen variable
+		var nMissing = data[1][0][variables[i]];
+		
+		if (nMissing > 1) {
+			missingnessWarning.text('Warning: ' + variables[i] + ' has ' + nMissing + ' missing values.');
+		} else if (nMissing==1) {
+			missingnessWarning.text('Warning: ' + variables[i] + ' has 1 missing value.');
+		} else {
+			missingnessWarning.text('');
+		}
 	}
 
 
@@ -283,7 +287,7 @@ function explore(data) {
 	d3.select('#histogram').selectAll('.bar').remove();
 
     // create a toolbar for switching the histogram variable
-    var selector1 = makeVariableSelector('selector1', data[0], varNames, 'translate(207,450)');
+    var selector1 = makeVariableSelector('selector1', data, varNames, 'translate(207,450)');
 
     // create a toolbar for changing number of bins
     var selector2 = makeBinSelector('selector2', 'translate(207,490)');
@@ -307,6 +311,16 @@ function explore(data) {
 	histLabel.text(varNames[0]);
 	currentVar = data[0].map(function(d) {return +d[varNames[0]]});
 	updateHist(currentVar, currentBins, 100);
+
+    // display # of missing values
+	var nMissing = data[1][0][varNames[0]];	
+	if (nMissing > 1) {
+		missingnessWarning.text('Warning: ' + varNames[0] + ' has ' + nMissing + ' missing values.');
+	} else if (nMissing==1) {
+		missingnessWarning.text('Warning: ' + varNames[0] + ' has 1 missing value.');
+	} else {
+		missingnessWarning.text('');
+	}
 	
 
 } // end of explore
