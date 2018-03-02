@@ -12,27 +12,6 @@ var svg = d3.select('#viz').append('svg')
 var categoricalWarning = svg.append('text').attr('y', 25);
 var missingnessWarning = svg.append('text').attr('y', 50);
 
-// create a histogram group
-var histogram = svg.append('g')
-	.attr('id','histogram')
-	.attr('transform','translate(100,100)');
-
-// histogram dimensions
-var histHeight = 200;
-var histWidth = 200;
-
-// draw axes of histogram
-// default to (0,1) scale
-y_scale = d3.scaleLinear().domain([0,1]).range([histHeight, 0]);
-histogram.append('g')
-  .attr('class', 'axis yAxis')
-  .call(d3.axisLeft(y_scale).ticks(5));
-
-x_scale = d3.scaleLinear().domain([0,1]).range([0, histWidth]);
-histogram.append('g')
-  .attr('class', 'axis xAxis')
-  .attr('transform', 'translate(0,' + histHeight + ')')
-  .call(d3.axisBottom(x_scale).ticks(5));
 
 // create a scatterplot group
 var scatterplot = svg.append('g')
@@ -59,58 +38,19 @@ scatterplot.append('text')
     .text("");
 
 
-// function for calculating the counts necessary for producing a histogram
-// input: data, lower end of lowest bin, high end of highest bin, desired # of bins
-// output: JS object with variable "value" = count for each bin
-function calcHist(x, low, high, bins) {
-  // scale the data & take floor to collapse into bins
-  histScale = d3.scaleLinear().domain([low, high]).range([0,bins]);
-  scaled = x.map(function(a) {return Math.floor(histScale(a));});
-
-	// find the # of points in each bin
-	hist = Array(bins);
-	for (i=0; i < hist.length; i++){
-	  bool = scaled.map(function (a) {return (a == i);});
-	  val = d3.sum(bool);
-	  hist[i] = val;
-	}
-
-  return hist;
-}
 
 
-// function for updating the histogram with input variable (array) x
-// also updates the y variable of the scatterplot
-function updateHist(x) {
+// function for updating the y variable of the scatterplot
+function updateY(x) {
 
 	var xMin = d3.min(x);
 	var xMax = d3.max(x);
 
-	// calculate the counts of the chosen variable using calcHist
-	var bins = 10;
-	var counts = calcHist(x, Math.round(xMin)-1, Math.round(xMax)+1, bins);
-	myVar = counts;
-	var stepSize = (Math.ceil(xMax) - Math.floor(xMin)) / bins;
-
-	// rescale/relabel x axis of histogram
-	histScaleX = d3.scaleLinear().domain([Math.round(xMin)-1, Math.round(xMax)+1]).range([0, histWidth]);
-	d3.select('#histogram').select('.xAxis').call(d3.axisBottom(histScaleX).ticks(5));
-
-  	// rescale/relabel y axis of histogram
-	histScaleY = d3.scaleLinear().domain([0, Math.ceil(d3.max(counts))]).range([histHeight, 0]);
-	d3.select('#histogram').select('.yAxis').call(d3.axisLeft(histScaleY).ticks(5));
-
-	// update bars
-    d3.selectAll('.bar')
-      .transition()
-      .duration(100)
-      .attr('height', function (d,i) {return histHeight - histScaleY(counts[i])})
-      .attr('y', function (d,i) {return histScaleY(counts[i])});
-
-
-	// relabel y axis of scatterplot and update points
+	// relabel y axis of scatterplot
 	scatterScaleY = d3.scaleLinear().domain([Math.floor(xMin), Math.ceil(xMax)]).range([histHeight, 0]);
 	d3.select('#scatterplot').select('.yAxis').call(d3.axisLeft(scatterScaleY).ticks(5));
+
+	// update points
 	d3.select('#scatterplot').selectAll('.point')
 		.transition()
 		.duration(100)
@@ -237,49 +177,11 @@ function makeSelector(id, data, variables, mousemove, transform) {
 
 
 
-// when the data have loaded, explore!
-// queue()
-//   .defer(d3.csv, 'myData.csv')
-//   .await(explore);
-
-// alternatively, upload a file
-// http://bl.ocks.org/syntagmatic/raw/3299303/
-// function upload_button(el, callback) {
-//   var uploader = document.getElementById(el);  
-//   var reader = new FileReader();
-
-//   reader.onload = function(e) {
-//     var contents = e.target.result;
-//     callback(contents);
-//   };
-
-//   uploader.addEventListener("change", handleFiles, false);  
-
-//   function handleFiles() {
-//     var file = this.files[0];
-//     reader.readAsText(file);
-//   };
-// };
-// upload_button('files', load_data);
-
-// // load dataset and explore!
-// function load_data(csv) {
-//   // clear any warning messages
-//   categoricalWarning.text('');
-//   missingnessWarning.text('');
-//   // load the data and explore!
-//   var data = d3.csvParse(csv);
-//   explore(data);
-// }
-
-
-
-
 // function to plot the data
 function explore(data) {
 
 	// get a list of the variable names
-	var varNames = Object.keys(data[0]);
+	var varNames = Object.keys(data[1]);
 
 	// convert all categorical variables to numeric
 	// if a column contains no numbers, find all unique values (other than "NA", "", or ".") and assign a number
@@ -360,8 +262,7 @@ function explore(data) {
 	
 
 
-	// remove all histogram bars and scatterplot points
-	d3.select('#histogram').selectAll('.bar').remove();
+	// remove all scatterplot points
 	d3.select('#scatterplot').selectAll('.point').remove();
 
 
@@ -373,21 +274,6 @@ function explore(data) {
 
 	// create crossfilter
 	// var cf = crossfilter(data);
-
-	// add bars with height 0 to the histogram
-	var bins = 10;
-	var barWidth = histWidth / bins;
-	d3.select('#histogram').selectAll('.bar')
-	    .data(Array(bins))
-	    .enter()
-	    .append('rect')
-	    .attr('class', 'bar')
-	    .attr('width', barWidth)
-	    .attr('height', 0)
-	    .attr('x', function (d, i) {return i * barWidth})
-	    .attr('y', histHeight)
-	    .attr('fill', 'steelblue')
-	    .attr('stroke', d3.rgb('steelblue').darker());
 
 	// default to selecting the first column of the csv for the histogram and y axis of scatterplot
 	// later the user will be able to try all the different variables
@@ -423,6 +309,7 @@ function explore(data) {
 
 
 
-
+myData = ```jsonData''';
+explore(myData);
 
 

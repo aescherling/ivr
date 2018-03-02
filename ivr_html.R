@@ -7,7 +7,7 @@ library(glue)
 
 # load templates
 uhist_template <- readChar('uhist_template.html', file.info('uhist_template.html')$size)
-# mplot_template <- readChar('mplot_template.html', file.info('mplot_template.html')$size)
+mplot_template <- readChar('mplot_template.html', file.info('mplot_template.html')$size)
 
 # load dependencies
 bootstrap <- readChar('css/bootstrap.min.css', file.info('css/bootstrap.min.css')$size)
@@ -17,11 +17,11 @@ queue <- readChar('lib/queue.min.js', file.info('lib/queue.min.js')$size)
 
 # load ivr javascript files
 uhist <- readChar('uhist.js', file.info('uhist.js')$size)
-# mplot <- readChar('mplot.js', file.info('mplot.js')$size)
+mplot <- readChar('mplot.js', file.info('mplot.js')$size)
 
 # glue them together
 uhist.html <- glue(uhist_template)
-# mplot.html <- glue(mplot_template)
+mplot.html <- glue(mplot_template)
 
-save(uhist.html, file='ivr.RData')
-# save(uhist.html, mplot.html, file='ivr.RData')
+#save(uhist.html, file='ivr.RData')
+save(uhist.html, mplot.html, file='ivr.RData')
