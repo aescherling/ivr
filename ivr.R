@@ -28,7 +28,6 @@ uhist <- function(X, view=TRUE, save=FALSE, file=NULL) {
 		colnames(df) <- deparse(substitute(X))
 	}
 
-
 	# convert any character vectors to factors & represent factors as numeric
 	for (j in 1:ncol(df)) {
 		if (class(df[,j])=="character") {

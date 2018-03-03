@@ -15,7 +15,7 @@ mplot (multivariate plot):
  	- y variable
  	- bubble size (scale) variable
  	- color variable
- - mouseover: observation number/row name? could potentially have a slider for this as well
+ - tooltip with observation number/row name? could potentially have a slider for this as well
 
 iview (interactive table view):
  - open the data in a table. easy to scroll both vertically and horizontally.
