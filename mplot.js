@@ -3,8 +3,9 @@
 var myData;
 var myVar;
 
-// globally accessible color variable
+// globally accessible color variable and size variable
 var currentColor = 0;
+var currentSize = 0;
 
 // create an svg - everything will be drawn on this
 var svg = d3.select('#viz').append('svg')
@@ -73,6 +74,21 @@ function updateColor(x) {
 	d3.selectAll('.point')
 		.style('fill', function(d,i) {return scaleColor(x[i])})
 		.style('stroke', function(d,i) {return scaleColor(x[i])});
+
+} // end of updateHist()
+
+
+// function for updating the bubble size of the scatterplot
+function updateSize(x) {
+
+	var xMin = d3.min(x);
+	var xMax = d3.max(x);
+
+	bubbleScale = d3.scalePow().exponent(2).domain([Math.floor(xMin), Math.ceil(xMax)]).range([2.5, 15]);
+
+	// update points
+	d3.selectAll('.point')
+		.attr('r', function(d,i) {return bubbleScale(x[i])});
 
 } // end of updateHist()
 
@@ -266,6 +282,91 @@ function makeColorSelector(id, data, variables, transform) {
 
 
 
+// function for creating a variable selector for size of points
+function makeSizeSelector(id, data, variables, transform) {
+
+	var sizeVariables = ["None"].concat(variables);
+
+	// if a selector with this id already exists, remove it
+	d3.selectAll('#' + id).remove();
+
+	// set dimensions
+    var width = scatterWidth;
+    var height = 20;
+    var textwidth = 55;
+    var margin = 5;
+
+	// create the scale
+    var x = d3.scaleLinear()
+    	.domain([0, sizeVariables.length-1])
+    	.range([0, width - 2*margin]);
+
+    var y = d3.scaleLinear()
+    	.domain([0, sizeVariables.length-1])
+    	.range([height/2, height/2]);
+
+    // a line based on the scales
+    var line = d3.line()
+        .x(function(d, i) { return x(i); })
+        .y(function(d, i) { return y(i); });
+
+    // create a selector group
+	var selector = svg.append('g')
+		.attr('id', id)
+		.attr('transform', transform);
+
+	// add the line to the selector
+	var path = selector.append('path')
+      .datum(sizeVariables)
+      .attr('d', line)
+      .attr('style', 'fill: none; stroke: #000; stroke-width: 0.5px;');
+
+    // dot shows the current variable selection
+    var dot = selector.append("circle")
+    	.attr('class', 'dot')
+        .attr('cx', x(0))
+        .attr('cy', y(0))
+        .attr("r", 5);
+
+    // variable name
+    var varName = selector.append("text")
+    	.attr('id','colorText')
+    	.attr("x", 145)
+    	.attr("y", -10)
+    	.attr("text-anchor", "middle")
+    	.text("Size: None");
+
+	// function for updating the color variable
+	function changeSize() {
+		var i = Math.min(Math.round(x.invert(d3.mouse(this)[0])), sizeVariables.length-1);
+		dot.attr('cx', x(i)).attr('cy', y(i));
+		varName.text('Size: ' + sizeVariables[i]);
+
+		// make sure the scale section has changed
+		// if i==0 then "None" is selected
+		if (i!=currentSize & i!=0) {
+			var newVar = data.map(function(d) {return +d[sizeVariables[i]]});
+			updateSize(newVar);
+		} else if (i!=currentSize) {
+			d3.selectAll('.point')
+				.attr('r',3.5);
+		}
+
+		currentSize = i;
+		
+	}
+
+    var overlay = selector.append("rect")
+        .attr("class", "overlay")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("style", "fill: none; pointer-events: all;")
+        .on("mousemove", changeSize);
+
+    return(selector);
+} // end of makeSelector();
+
+
 
 
 // function to plot the data
@@ -285,6 +386,9 @@ function explore(data) {
 
     // create a toolbar for switching the color variable
     var colorSelector = makeColorSelector('colorSelector', data[0], varNames, 'translate(500,100)');
+
+    // create a toolbar for switching the scale variable
+    var sizeSelector = makeSizeSelector('sizeSelector', data[0], varNames, 'translate(500,200)');
 
 	// create crossfilter
 	// var cf = crossfilter(data);
@@ -323,7 +427,7 @@ function explore(data) {
 		.attr("cy", function(d) {return scaleY(+d[varNames[0]])})
 		.style("fill", "none")
 		.style("stroke","black")
-		.style("opacity",0.8);
+		.style("opacity",0.6);
 
 	// updateY(y);
 	
