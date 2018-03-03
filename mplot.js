@@ -226,16 +226,17 @@ function makeColorSelector(id, data, variables, transform) {
 
     // variable name
     var varName = selector.append("text")
+    	.attr('id','colorText')
     	.attr("x", 145)
     	.attr("y", -10)
     	.attr("text-anchor", "middle")
-    	.attr("text", "");
+    	.text("Color: None");
 
 	// function for updating the color variable
 	function changeColor() {
 		var i = Math.min(Math.round(x.invert(d3.mouse(this)[0])), colorVariables.length-1);
 		dot.attr('cx', x(i)).attr('cy', y(i));
-		varName.text(colorVariables[i]);
+		varName.text('Color: ' + colorVariables[i]);
 
 		// make sure the color section has changed
 		// if i==0 then "None" is selected
@@ -283,7 +284,7 @@ function explore(data) {
     var selector2 = makeSelector('selector2', data[0], varNames, 'x', 'translate(107,410)');
 
     // create a toolbar for switching the color variable
-    var colorSelector = makeColorSelector('colorSelector', data[0], varNames, 'translate(500,210)');
+    var colorSelector = makeColorSelector('colorSelector', data[0], varNames, 'translate(500,100)');
 
 	// create crossfilter
 	// var cf = crossfilter(data);
