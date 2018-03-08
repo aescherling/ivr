@@ -9,6 +9,9 @@
 # directory containing the ivr files
 setwd('~/github/ivr')
 
+# update the html
+source('ivr_html.R')
+
 # load the html text
 load("ivr.RData")
 
@@ -152,5 +155,58 @@ mplot <- function(X, view=TRUE, save=FALSE, file=NULL) {
 }
 
 
+# iview function (view table)
+iview <- function(X, view=TRUE, save=FALSE, file=NULL) {
+
+	# required packages
+	require(htmltools)
+	require(jsonlite)
+	require(glue)
+
+	# convert the input to a data frame, in case it isn't already
+	df <- data.frame(X)
+
+	# if only a single variable was passed, keep the variable name
+	if (dim(df)[2]==1) {
+		colnames(df) <- deparse(substitute(X))
+	}
+
+    # convert the data to JSON format
+	jsonData <- toJSON(df)
+
+	# glue the JSON data into the iview html
+	html <- HTML(glue(iview.html, .open="```", .close="'''"))
+
+	# if `view' is true, open in browser
+	if (view) print(html, browse=TRUE)
+
+	# if `save' is true, save the file
+	if (save) {
+		# if the file name is not provided, try saving as iview.html. 
+		# If that already exists try iview1.html, iview2.html, etc.
+		if (is.null(file)) {
+			localFiles <- list.files()
+			if (!("iview.html" %in% localFiles)) {
+				cat(html, file="iview.html")
+			} else {
+				go <- TRUE
+				i <- 1
+				while (go) {
+					filename <- paste0("iview", i, ".html")
+					if (!(filename %in% localFiles)) {
+						cat(html, file=filename)
+						go <- FALSE
+					} else {
+						i <- i + 1
+					}
+				}
+			}
+		} else {
+			cat(html, file=file)
+		}
+	}
+}
+
+
 # save to ivr.RData
-save(uhist, uhist.html, mplot, mplot.html, file='ivr.RData')
+save(uhist, uhist.html, mplot, mplot.html, iview, iview.html, file='ivr.RData')

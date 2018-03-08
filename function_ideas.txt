@@ -23,6 +23,7 @@ iview (interactive table view):
  - open the data in a table. easy to scroll both vertically and horizontally.
  - sort on variables
  - filter
+ - edit data??? could be a great extension of R. would require back-portability from the html to the session. not sure about that. in general though, being able to edit R objects based on javascript tools could be revolutionary. make a jRavascript package???
 
 gplot (graphical network plot): 
  - color by covariates
