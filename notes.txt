@@ -6,3 +6,4 @@ how can visualizations aid these goals?
 consider using the CDNs for bootstrap, d3, queue. could save memory
 
 
+feedback from Meredith: it would be great to be able to save plots, edit titles, etc.

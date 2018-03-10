@@ -59,7 +59,7 @@ function makeSlider(id, variables, axis, length, transform) {
     		.range([0, width - 2*margin]);
     } else if (axis=="row") {
     	var x = d3.scaleLinear()
-    		.domain([0, variables.length-1])
+    		.domain([0, variables.length])
     		.range([width - 2*margin, 0]);
     }
 
@@ -109,32 +109,92 @@ function makeSlider(id, variables, axis, length, transform) {
 		dot.attr('cx', x(tmp)).attr('cy', y(tmp));
 
 		if (axis=="row") {
-			currentRow = tmp;	
+			currentRow = d3.max([0,tmp]);
+			currentRow = d3.min([tmp, variables.length-1])	
 		} else if (axis=="col") {
-			currentCol = tmp;
+			currentCol = d3.max([0,tmp]);
+			currentCol = d3.min([tmp, variables.length-1])
 		}
 	
+	    // replace all data
 		d3.selectAll('.cell').remove();
+		
 		// create a text object in each cell of the table
 		for (i in tableRowIDs) {
 			var tmpRow = d3.select('#row' + i)
 			for (j in tableColIDs) {
-				tmpRow.append('text')
-					.attr('id','cell' + i + ',' + j)
-					.classed('cell',true)
-					.classed('col'+i, true)
-					.attr('transform','translate(' + (150 * j) + ',0)')
-					.attr('text-anchor','middle')
-					.text(myData[+currentRow + +i][varNames[+currentCol + +j]]);
+				// check to make sure such a row/column exists
+				var checkOverflow;
+				if (axis=="row") {
+					checkOverflow = (+currentRow + +i) < variables.length;
+				} else if (axis=="col") {
+					checkOverflow = (+currentCol + +j) < variables.length;
+				}
+				if (checkOverflow) {
+					tmpRow.append('text')
+						.attr('id','cell' + i + ',' + j)
+						.classed('cell',true)
+						.classed('col'+i, true)
+						.attr('transform','translate(' + (50 + (150 * j)) + ',0)')
+						.attr('text-anchor','middle')
+						.attr('style','background-color')
+						.text(myData[+currentRow + +i][varNames[+currentCol + +j]]);
+				}
 			}
 		}
-	}
+
+        // adjust row/column titles
+		if (axis=="row") {
+			// replace row IDs
+			d3.selectAll('.rowTitle').remove();
+			rowIDsTmp = [];
+			for (var i = 0; i < nrow; i++) {
+				if (+currentRow + +i < dataRowIDs.length) {
+					rowIDsTmp.push(+currentRow + +i);	
+				}
+			}
+
+			d3.select('#rowTitleGroup').selectAll('text')
+				.data(rowIDsTmp)
+				.enter()
+				.append('text')
+				.classed('titleCell', true)
+				.classed('rowTitle', true)
+				.attr('id', function(d, i) {return ('rowID' + +i + 1);})
+				.attr('text-anchor','middle')
+				.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
+				.attr('transform',function(d, i) {return 'translate(-10,' + (20 * (+i +1 )) + ')'})
+				.text(function(d) {return (+d + 1)});
+		} else if (axis=="col") {
+			// replace column IDs
+			d3.selectAll('.columnTitle').remove();
+			varNamesTmp = [];
+			for (var j = 0; j < ncol; j++) {
+				if (+currentCol + +j < dataColIDs.length) {
+					varNamesTmp.push(varNames[+currentCol + +j]);	
+				}
+			}
+
+			d3.select('#columnTitleGroup').selectAll('text')
+				.data(varNamesTmp)
+				.enter()
+				.append('text')
+				.classed('titleCell', true)
+				.classed('columnTitle', true)
+				.attr('id', function(d,i) {return ('column' + i);})
+				.attr('text-anchor','middle')
+				.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
+				.attr('transform',function(d,i) {return 'translate(' + (50 + (150 * i)) + ',0)'})
+				.text(function(d) {return (d)});
+		}		
+
+	} // end of slide()
 
     var overlay = selector.append("rect")
         .attr("class", "overlay")
-        .attr("width", width)
+        .attr("width", width - 2 * margin)
         .attr("height", height)
-        .attr("style", "fill: none; pointer-events: all;")
+        .attr("style", "fill: none; pointer-events: all")
         .on("mousemove", slide);
 
     return(selector);
@@ -149,6 +209,12 @@ function explore(data) {
 	var n = data.length;
 	var p = Object.keys(data[0]).length;
 
+	// get a list of the variable names
+	varNames = Object.keys(data[0]);
+
+	// create crossfilter
+	var cf = crossfilter(data);
+
 	for (var i = 0; i < n; i++) {
 	    dataRowIDs.push(i);
 	}
@@ -157,11 +223,10 @@ function explore(data) {
 	    dataColIDs.push(i);
 	}
 
-	// get a list of the variable names
-	varNames = Object.keys(data[0]);
-
-	// create crossfilter
-	var cf = crossfilter(data);
+    var tableColNames = [];
+    for (var i=0; i<ncol; i++) {
+    	tableColNames.push(varNames[i]);
+    }
 
 
 	// create the row groups and background rects for highlighting
@@ -172,9 +237,6 @@ function explore(data) {
 	  .attr('id', function (d) {return("row" + d);})
 	  .attr('transform', function(d) {return 'translate(0,' + (20 * (d+1)) + ')'});
 
-
-	// note: I also need to add a row label
-
 	// create a text object in each cell of the table
 	for (i in tableRowIDs) {
 		var tmpRow = d3.select('#row' + i)
@@ -184,29 +246,43 @@ function explore(data) {
 				.classed('cell',true)
 				.classed('col'+i, true)
 				.attr('text-anchor','middle')
-				.attr('transform','translate(' + (150 * j) + ',0)')
+				.attr('transform','translate(' + (50 + (150 * j)) + ',0)')
 				.text(data[i][varNames[j]]);
 		}
 	}
 
-
 	// create a group for the titles and append text
-	var titleGroup = table.append('g').attr('id', 'titleGroup');
-	titleGroup.selectAll('text')
-		.data(varNames)
+	var columnTitleGroup = table.append('g').attr('id', 'columnTitleGroup');
+	columnTitleGroup.selectAll('text')
+		.data(tableColNames)
 		.enter()
 		.append('text')
-		.classed('title', true)
+		.classed('titleCell', true)
+		.classed('columnTitle', true)
 		.attr('id', function(d,i) {return ('column' + i);})
 		.attr('text-anchor','middle')
 		.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
-		.attr('transform',function(d,i) {return 'translate(' + (150 * i) + ',0)'})
+		.attr('transform',function(d,i) {return 'translate(' + (50 + (150 * i)) + ',0)'})
 		.text(function(d) {return (d)});
+
+	// create a group for the row numbers append text
+	var rowTitleGroup = table.append('g').attr('id', 'rowTitleGroup');
+	rowTitleGroup.selectAll('text')
+		.data(tableRowIDs)
+		.enter()
+		.append('text')
+		.classed('titleCell', true)
+		.classed('rowTitle', true)
+		.attr('id', function(d) {return ('rowID' + +d + 1);})
+		.attr('text-anchor','middle')
+		.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
+		.attr('transform',function(d) {return 'translate(-10,' + (20 * (+d +1 )) + ')'})
+		.text(function(d) {return (+d + 1)});
 
 
 	// create a slider for the rows
 	if (n > nrow) {
-		var slider1 = makeSlider('slider1', dataRowIDs, 'row', 300, 'translate(20,343) rotate(270)');	
+		var slider1 = makeSlider('slider1', dataRowIDs, 'row', 300, 'translate(0,350) rotate(270)');	
 	}
     
 
