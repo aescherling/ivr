@@ -13,10 +13,20 @@ var table = svg.append('g')
 	.attr('id', 'table')
 	.attr('transform','translate(50,50)');
 
+table.append('rect')
+	.attr('x','10px')
+	.attr('y','5px')
+	.attr('width','725px')
+	.attr('height','300px')
+	.attr('style','fill:none; stroke:black');
+
 // set the max number of rows and columns to be viewed at a time
 var nrow = 15;
 var ncol = 5;
 
+// set global vars for number of rows, columns of data
+var n;
+var p;
 
 // create a range of indicators for table row IDs
 var tableRowIDs = [];
@@ -124,18 +134,13 @@ function makeSlider(id, variables, axis, length, transform) {
 			var tmpRow = d3.select('#row' + i)
 			for (j in tableColIDs) {
 				// check to make sure such a row/column exists
-				var checkOverflow;
-				if (axis=="row") {
-					checkOverflow = (+currentRow + +i) < variables.length;
-				} else if (axis=="col") {
-					checkOverflow = (+currentCol + +j) < variables.length;
-				}
+				var checkOverflow = ((+currentRow + +i) < n) & ((+currentCol + +j) < p);
 				if (checkOverflow) {
 					tmpRow.append('text')
 						.attr('id','cell' + i + ',' + j)
 						.classed('cell',true)
 						.classed('col'+i, true)
-						.attr('transform','translate(' + (50 + (150 * j)) + ',0)')
+						.attr('transform','translate(' + (75 + (150 * j)) + ',0)')
 						.attr('text-anchor','middle')
 						.attr('style','background-color')
 						.text(myData[+currentRow + +i][varNames[+currentCol + +j]]);
@@ -165,6 +170,16 @@ function makeSlider(id, variables, axis, length, transform) {
 				.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
 				.attr('transform',function(d, i) {return 'translate(-10,' + (20 * (+i +1 )) + ')'})
 				.text(function(d) {return (+d + 1)});
+
+			// color the odd rows
+			for (i in tableRowIDs) {
+				if ((+rowIDsTmp[i] % 2) ==0) {
+					d3.select('#row' + i + 'Rect').attr('style','fill:skyblue');
+				} else {
+					d3.select('#row' + i + 'Rect').attr('style','fill:none');
+				}
+			}
+
 		} else if (axis=="col") {
 			// replace column IDs
 			d3.selectAll('.columnTitle').remove();
@@ -184,7 +199,7 @@ function makeSlider(id, variables, axis, length, transform) {
 				.attr('id', function(d,i) {return ('column' + i);})
 				.attr('text-anchor','middle')
 				.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
-				.attr('transform',function(d,i) {return 'translate(' + (50 + (150 * i)) + ',0)'})
+				.attr('transform',function(d,i) {return 'translate(' + (75 + (150 * i)) + ',0)'})
 				.text(function(d) {return (d)});
 		}		
 
@@ -206,8 +221,8 @@ function makeSlider(id, variables, axis, length, transform) {
 function explore(data) {
 
 	// get the dimensions of the table
-	var n = data.length;
-	var p = Object.keys(data[0]).length;
+	n = data.length;
+	p = Object.keys(data[0]).length;
 
 	// get a list of the variable names
 	varNames = Object.keys(data[0]);
@@ -238,6 +253,7 @@ function explore(data) {
 	  .attr('transform', function(d) {return 'translate(0,' + (20 * (d+1)) + ')'});
 
 	// create a text object in each cell of the table
+	// also create a rectangle behind the row for coloring
 	for (i in tableRowIDs) {
 		var tmpRow = d3.select('#row' + i)
 		for (j in tableColIDs) {
@@ -246,8 +262,24 @@ function explore(data) {
 				.classed('cell',true)
 				.classed('col'+i, true)
 				.attr('text-anchor','middle')
-				.attr('transform','translate(' + (50 + (150 * j)) + ',0)')
+				.attr('transform','translate(' + (75 + (150 * j)) + ',0)')
 				.text(data[i][varNames[j]]);
+			tmpRow.append('rect')
+				.attr('id','row'+ i +'Rect')
+				.attr('transform','translate(10,-15)')
+				.attr('width','725px')
+				.attr('height','20px')
+				.attr('style','fill:none;stroke:none')
+				.attr('opacity',0.25);
+		}
+	}
+
+	// color the odd rows (1st row is 0)
+	for (i in tableRowIDs) {
+		if ((+i % 2) ==0) {
+			d3.select('#row' + i + 'Rect').attr('style','fill:skyblue');
+		} else {
+			d3.select('#row' + i + 'Rect').attr('style','fill:none');
 		}
 	}
 
@@ -262,7 +294,7 @@ function explore(data) {
 		.attr('id', function(d,i) {return ('column' + i);})
 		.attr('text-anchor','middle')
 		.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
-		.attr('transform',function(d,i) {return 'translate(' + (50 + (150 * i)) + ',0)'})
+		.attr('transform',function(d,i) {return 'translate(' + (75 + (150 * i)) + ',0)'})
 		.text(function(d) {return (d)});
 
 	// create a group for the row numbers append text
