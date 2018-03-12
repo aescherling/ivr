@@ -166,6 +166,9 @@ iview <- function(X, view=TRUE, save=FALSE, file=NULL) {
 	# convert the input to a data frame, in case it isn't already
 	df <- data.frame(X)
 
+	# convert all NAs to "NA"
+	df[is.na(df)] <- "NA"
+
 	# if only a single variable was passed, keep the variable name
 	if (dim(df)[2]==1) {
 		colnames(df) <- deparse(substitute(X))

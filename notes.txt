@@ -7,3 +7,7 @@ consider using the CDNs for bootstrap, d3, queue. could save memory
 
 
 feedback from Meredith: it would be great to be able to save plots, edit titles, etc.
+
+
+
+can the output from these functions be stuck in an R markdown html document?
