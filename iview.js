@@ -1,7 +1,8 @@
 
-// globally accessible data variables, primarily for debugging
+// globally accessible data variables
 var myData;
 var varNames;
+var cf;
 
 // create an svg - everything will be drawn on this
 var svg = d3.select('#viz').append('svg')
@@ -49,6 +50,8 @@ var dataColIDs = [];
 var currentRow = 0;
 var currentCol = 0;
 
+// variable for variable to sort on
+var sortVar = "";
 
 
 // function for creating a slider
@@ -202,8 +205,18 @@ function makeSlider(id, variables, axis, length, transform) {
 				.classed('columnTitle', true)
 				.attr('id', function(d,i) {return ('column' + i);})
 				.attr('text-anchor','middle')
-				.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
+				.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace; cursor:pointer')
 				.attr('transform',function(d,i) {return 'translate(' + (95 + (160 * i)) + ',0)'})
+				.on('click',function(d,i) {
+					newVar = varNames[currentCol + i];
+					if (sortVar==newVar) {
+						sortData("bottom");
+						sortVar = "";
+					} else {
+						sortVar = newVar;
+						sortData("top");
+					}
+				})
 				.text(function(d) {return (d)});
 		}		
 
@@ -220,6 +233,44 @@ function makeSlider(id, variables, axis, length, transform) {
 } // end of makeSelector();
 
 
+function sortData(method) {
+	// create a dimension for filtering
+	DimTmp = cf.dimension(function(d) {return d[sortVar]});
+	if (method=="top") {
+		myData = DimTmp.top(n); 
+	} else if (method=="bottom") {
+		myData = DimTmp.bottom(n);
+	}
+	DimTmp.dispose();
+	cf = crossfilter(myData);
+
+	// replace all data
+	d3.selectAll('.cell').remove();
+		
+	// create a text object in each cell of the table
+	for (i in tableRowIDs) {
+		var tmpRow = d3.select('#row' + i)
+		for (j in tableColIDs) {
+			// check to make sure such a row/column exists
+			var checkOverflow = ((+currentRow + +i) < n) & ((+currentCol + +j) < p);
+			if (checkOverflow) {
+				txtTmp = myData[+currentRow + +i][varNames[+currentCol + +j]];
+				if (txtTmp.length > 19) {
+					txtTmp = txtTmp.substring(0,16) + "...";
+				}
+				tmpRow.append('text')
+					.attr('id','cell' + i + ',' + j)
+					.classed('cell',true)
+					.classed('col'+i, true)
+					.attr('transform','translate(' + (95 + (160 * j)) + ',0)')
+					.attr('text-anchor','middle')
+					.attr('style', 'font-size: 14px; font-family:monospace')
+					.text(txtTmp);
+			}
+		}
+	}
+}
+
 
 // function to plot the data
 function explore(data) {
@@ -232,7 +283,7 @@ function explore(data) {
 	varNames = Object.keys(data[0]);
 
 	// create crossfilter
-	var cf = crossfilter(data);
+	cf = crossfilter(data);
 
 	for (var i = 0; i < n; i++) {
 	    dataRowIDs.push(i);
@@ -302,8 +353,18 @@ function explore(data) {
 		.classed('columnTitle', true)
 		.attr('id', function(d,i) {return ('column' + i);})
 		.attr('text-anchor','middle')
-		.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
+		.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace; cursor:pointer')
 		.attr('transform',function(d,i) {return 'translate(' + (95 + (160 * i)) + ',0)'})
+		.on('click',function(d,i) {
+			newVar = varNames[currentCol + i];
+			if (sortVar==newVar) {
+				sortData("bottom");
+				sortVar = "";
+			} else {
+				sortVar = newVar;
+				sortData("top");
+			}
+		})
 		.text(function(d) {return (d)});
 
 	// create a group for the row numbers append text

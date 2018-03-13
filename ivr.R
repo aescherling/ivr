@@ -23,6 +23,9 @@ uhist <- function(X, view=TRUE, save=FALSE, file=NULL) {
 	require(jsonlite)
 	require(glue)
 
+	# keep the function call as the title
+	title <- paste0('uhist(',deparse(substitute(X)),')')
+
 	# convert the input to a data frame, in case it isn't already
 	df <- data.frame(X)
 
@@ -95,6 +98,9 @@ mplot <- function(X, view=TRUE, save=FALSE, file=NULL) {
 	require(jsonlite)
 	require(glue)
 
+	# keep the function call as the title
+	title <- paste0('mplot(',deparse(substitute(X)),')')
+
 	# convert the input to a data frame, in case it isn't already
 	df <- data.frame(X)
 
@@ -162,6 +168,9 @@ iview <- function(X, view=TRUE, save=FALSE, file=NULL) {
 	require(htmltools)
 	require(jsonlite)
 	require(glue)
+
+	# keep the function call as the title
+	title <- paste0('iview(',deparse(substitute(X)),')')
 
 	# convert the input to a data frame, in case it isn't already
 	df <- data.frame(X)
