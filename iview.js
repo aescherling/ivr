@@ -16,7 +16,7 @@ var table = svg.append('g')
 table.append('rect')
 	.attr('x','10px')
 	.attr('y','5px')
-	.attr('width','725px')
+	.attr('width','810px')
 	.attr('height','300px')
 	.attr('style','fill:none; stroke:black');
 
@@ -136,14 +136,18 @@ function makeSlider(id, variables, axis, length, transform) {
 				// check to make sure such a row/column exists
 				var checkOverflow = ((+currentRow + +i) < n) & ((+currentCol + +j) < p);
 				if (checkOverflow) {
+					txtTmp = myData[+currentRow + +i][varNames[+currentCol + +j]];
+					if (txtTmp.length > 19) {
+						txtTmp = txtTmp.substring(0,16) + "...";
+					}
 					tmpRow.append('text')
 						.attr('id','cell' + i + ',' + j)
 						.classed('cell',true)
 						.classed('col'+i, true)
-						.attr('transform','translate(' + (75 + (150 * j)) + ',0)')
+						.attr('transform','translate(' + (95 + (160 * j)) + ',0)')
 						.attr('text-anchor','middle')
-						.attr('style','background-color')
-						.text(myData[+currentRow + +i][varNames[+currentCol + +j]]);
+						.attr('style', 'font-size: 14px; font-family:monospace')
+						.text(txtTmp);
 				}
 			}
 		}
@@ -199,7 +203,7 @@ function makeSlider(id, variables, axis, length, transform) {
 				.attr('id', function(d,i) {return ('column' + i);})
 				.attr('text-anchor','middle')
 				.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
-				.attr('transform',function(d,i) {return 'translate(' + (75 + (150 * i)) + ',0)'})
+				.attr('transform',function(d,i) {return 'translate(' + (95 + (160 * i)) + ',0)'})
 				.text(function(d) {return (d)});
 		}		
 
@@ -257,17 +261,22 @@ function explore(data) {
 	for (i in tableRowIDs) {
 		var tmpRow = d3.select('#row' + i)
 		for (j in tableColIDs) {
+			txtTmp = data[i][varNames[j]];
+			if (txtTmp.length > 19) {
+				txtTmp = txtTmp.substring(0,16) + "...";
+			}
 			tmpRow.append('text')
 				.attr('id','cell' + i + ',' + j)
 				.classed('cell',true)
 				.classed('col'+i, true)
 				.attr('text-anchor','middle')
-				.attr('transform','translate(' + (75 + (150 * j)) + ',0)')
-				.text(data[i][varNames[j]]);
+				.attr('transform','translate(' + (95 + (160 * j)) + ',0)')
+				.attr('style', 'font-size: 14px; font-family:monospace')
+				.text(txtTmp);
 			tmpRow.append('rect')
 				.attr('id','row'+ i +'Rect')
 				.attr('transform','translate(10,-15)')
-				.attr('width','725px')
+				.attr('width','810px')
 				.attr('height','20px')
 				.attr('style','fill:none;stroke:none')
 				.attr('opacity',0.25);
@@ -294,7 +303,7 @@ function explore(data) {
 		.attr('id', function(d,i) {return ('column' + i);})
 		.attr('text-anchor','middle')
 		.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
-		.attr('transform',function(d,i) {return 'translate(' + (75 + (150 * i)) + ',0)'})
+		.attr('transform',function(d,i) {return 'translate(' + (95 + (160 * i)) + ',0)'})
 		.text(function(d) {return (d)});
 
 	// create a group for the row numbers append text
