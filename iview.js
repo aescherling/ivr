@@ -165,7 +165,6 @@ function makeSlider(id, variables, axis, length, transform) {
 					rowIDsTmp.push(+currentRow + +i);	
 				}
 			}
-
 			d3.select('#rowTitleGroup').selectAll('text')
 				.data(rowIDsTmp)
 				.enter()
@@ -176,7 +175,7 @@ function makeSlider(id, variables, axis, length, transform) {
 				.attr('text-anchor','middle')
 				.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
 				.attr('transform',function(d, i) {return 'translate(-10,' + (20 * (+i +1 )) + ')'})
-				.text(function(d) {return (+d + 1)});
+				.text(function(d) {return (myData[d].rowNumber + 1)});
 
 			// color the odd rows
 			for (i in tableRowIDs) {
@@ -269,6 +268,21 @@ function sortData(method) {
 			}
 		}
 	}
+
+	// update the row numbers
+	d3.selectAll('.rowTitle').remove();
+	d3.select('#rowTitleGroup').selectAll('text')
+		.data(tableRowIDs)
+		.enter()
+		.append('text')
+		.classed('titleCell', true)
+		.classed('rowTitle', true)
+		.attr('id', function(d) {return ('rowID' + +d + 1);})
+		.attr('text-anchor','middle')
+		.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace')
+		.attr('transform',function(d) {return 'translate(-10,' + (20 * (+d +1 )) + ')'})
+		.text(function(d) {return (myData[currentRow + +d].rowNumber + 1)});
+
 }
 
 
@@ -281,6 +295,9 @@ function explore(data) {
 
 	// get a list of the variable names
 	varNames = Object.keys(data[0]);
+
+	// add row numbers to the data
+	data.map(function(d,i) {d.rowNumber = i});
 
 	// create crossfilter
 	cf = crossfilter(data);
@@ -393,6 +410,23 @@ function explore(data) {
     	var slider2 = makeSlider('slider2', dataColIDs, 'col', 600, 'translate(107,410)');
     }
 	
+	// add a title for the row column
+	table.append('text')
+		.attr('id', 'rowNumberTitle')
+		.attr('text-anchor','middle')
+		.attr('style', 'font-size: 14px; font-weight: bold; font-family:monospace; cursor:pointer')
+		.attr('transform',function(d,i) {return 'translate(-10,0)'})
+		.on('click',function(d,i) {
+			newVar = "rowNumber";
+			if (sortVar==newVar) {
+				sortData("bottom");
+				sortVar = "";
+			} else {
+				sortVar = newVar;
+				sortData("top");
+			}
+		})
+		.text("row");
 
 } // end of explore
 
